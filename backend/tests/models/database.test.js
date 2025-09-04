@@ -14,4 +14,4 @@ test("The connection to database fails", async () => {
 
 afterAll(async () => {
     await pool.end();
-})
+});
