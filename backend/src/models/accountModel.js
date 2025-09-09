@@ -2,7 +2,9 @@ const pool = require("../config/database");
 
 const createAccount = async ({ account_name, account_code }) => {
   try {
-    const {rows: [account]} = await pool.query(
+    const {
+      rows: [account],
+    } = await pool.query(
       `
         INSERT INTO account(account_name, account_code)
         VALUES($1, $2)
@@ -14,21 +16,37 @@ const createAccount = async ({ account_name, account_code }) => {
     return account;
   } catch (err) {
     if (err.code == "23505") {
-        throw new Error("Account name already exists");
+      throw new Error("Account name already exists");
     }
     throw err;
   }
 };
 
+const getAllAccounts = async () => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT * FROM account
+      `);
+    return rows;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const updateAccount = async (id, data) => {};
+
 const deleteAccount = async (account_id) => {
   try {
-    const {rows: [account]} = await pool.query(
+    const {
+      rows: [account],
+    } = await pool.query(
       `
       DELETE FROM account
       WHERE account_id=$1
       RETURNING *;
-      `
-    , [account_id]);
+      `,
+      [account_id]
+    );
     return account;
   } catch (err) {
     if (err.code == "42P01") {
@@ -36,10 +54,9 @@ const deleteAccount = async (account_id) => {
     }
     throw err;
   }
-}
+};
 
 module.exports = {
-    createAccount,
-    deleteAccount,
-    
-}
+  createAccount,
+  deleteAccount,
+};
