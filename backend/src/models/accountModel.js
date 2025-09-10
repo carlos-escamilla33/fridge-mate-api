@@ -1,12 +1,23 @@
 const pool = require("../config/database");
 
-const createAccount = async ({ account_name, account_code }) => {
+const generateCodeHelper = (account_name) => {
+  return `${account_name}-${Math.floor(Math.random() * 10000)}`;
+}
+
+const hashPassword = (password) => {
+  
+}
+
+const createAccount = async ({ account_name, account_code,
+  first_name, last_name, email, password}) => {
+  const accCode = generateCodeHelper(account_name);
+  const hashedPassword = hashPassword(password);
   try {
     const {
       rows: [account],
     } = await pool.query(
       `
-        INSERT INTO account(account_name, account_code)
+        INSERT INTO account(account_name, account_code, email, password)
         VALUES($1, $2)
         RETURNING *;
         `,
