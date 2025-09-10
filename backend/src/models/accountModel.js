@@ -1,17 +1,20 @@
 const pool = require("../config/database");
+const { hashPasswordHelper } = require("./helper");
 
 const generateCodeHelper = (account_name) => {
   return `${account_name}-${Math.floor(Math.random() * 10000)}`;
-}
+};
 
-const hashPassword = (password) => {
-  
-}
-
-const createAccount = async ({ account_name, account_code,
-  first_name, last_name, email, password}) => {
+const createAccount = async ({
+  account_name,
+  account_code,
+  first_name,
+  last_name,
+  email,
+  password,
+}) => {
   const accCode = generateCodeHelper(account_name);
-  const hashedPassword = hashPassword(password);
+  const hashedPassword = await hashPasswordHelper(password);
   try {
     const {
       rows: [account],
@@ -46,25 +49,35 @@ const getAllAccounts = async () => {
 
 const getAccountByCode = async (code) => {
   try {
-    const {rows: [account]} = await pool.query(`
+    const {
+      rows: [account],
+    } = await pool.query(
+      `
         SELECT * FROM account
         WHERE account_code=$1
         RETURNING *;
-      `, [code]);
+      `,
+      [code]
+    );
     return account;
   } catch (err) {
     throw err;
   }
-}
+};
 
-const updateAccount = async ({account_id, account_name}) => {
+const updateAccount = async ({ account_id, account_name }) => {
   try {
-    const {rows: [account]} = await pool.query(`
+    const {
+      rows: [account],
+    } = await pool.query(
+      `
         UPDATE account
         SET account_name=$1
         WHERE account_id=$2
         RETURNING *;
-      `, [account_name, account_id]);
+      `,
+      [account_name, account_id]
+    );
     return account;
   } catch (err) {
     throw err;
@@ -73,15 +86,20 @@ const updateAccount = async ({account_id, account_name}) => {
 
 const getAccountById = async (id) => {
   try {
-    const {rows: [account]} = await pool.query(`
+    const {
+      rows: [account],
+    } = await pool.query(
+      `
         SELECT * FROM account
         WHERE account_id=$1;
-      `, [id]);
+      `,
+      [id]
+    );
     return account;
   } catch (err) {
     throw err;
   }
-}
+};
 
 const deleteAccount = async (account_id) => {
   try {
@@ -110,5 +128,5 @@ module.exports = {
   getAllAccounts,
   updateAccount,
   getAccountByCode,
-  getAccountById
+  getAccountById,
 };
