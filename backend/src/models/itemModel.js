@@ -17,7 +17,24 @@ const createItem = async ({account_id, profile_id, recipe_id, food_name, expirat
     }
 }
 
+const findItemById = async (id) => {
+    try {
+        const {rows: [item]} = await pool.query(
+            `
+            SELECT * FROM item
+            WHERE item_id=$1;
+            `,
+            [id]
+        );
+
+        return item;
+    } catch (err) {
+        throw err;
+    }
+} 
+
 module.exports = {
     createItem,
-
+    findItemById,
+    
 }
