@@ -83,10 +83,27 @@ const findSoonExpiringItems = async (account_id) => {
     }
 }
 
+const findExpiredItems = async (account_id) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            SELECT * FROM item
+            WHERE account_id=$1
+            AND expiration_date < CURRENT_DATE;
+            `,
+            [account_id]
+        )
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createItem,
     findItemById,
     findItemsByAccountId,
     findItemsByProfileId,
-
+    findSoonExpiringItems,
 }
