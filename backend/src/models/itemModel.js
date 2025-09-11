@@ -152,6 +152,24 @@ const deleteItem = async (id) => {
     }
 }
 
+const deleteExpiredItems = async (account_id) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            DELETE FROM item
+            WHERE account_id=$1
+            AND expiration_date < CURRENT_DATE
+            RETURNING *;
+            `,
+            [account_id]
+        );
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createItem,
     findItemById,
@@ -161,5 +179,6 @@ module.exports = {
     findExpiredItems,
     updateItem,
     updateItemRipeness,
-    deleteItem
+    deleteItem,
+    deleteExpiredItems,
 }
