@@ -1,38 +1,47 @@
-const pool = require("../config/database");
-const { hashPasswordHelper } = require("./helper");
+const {pool} = require("../config/database");
+const { hashPasswordHelper, generateCodeHelper } = require("./helpers");
 
-const generateCodeHelper = (account_name) => {
-  return `${account_name}-${Math.floor(Math.random() * 10000)}`;
-};
+const createAccount = async ({account_name, first_name, last_name, email, password,}) => {
+  const client = await pool.connect();
 
-const createAccount = async ({
-  account_name,
-  account_code,
-  first_name,
-  last_name,
-  email,
-  password,
-}) => {
-  const accCode = generateCodeHelper(account_name);
-  const hashedPassword = await hashPasswordHelper(password);
   try {
-    const {
-      rows: [account],
-    } = await pool.query(
+    const accCode = generateCodeHelper(account_name);
+    const hashedPassword = await hashPasswordHelper(password);
+
+    await client.query("BEGIN");
+
+    const {rows: [account]} = await client.query(
       `
         INSERT INTO account(account_name, account_code, email, password)
-        VALUES($1, $2)
+        VALUES($1, $2, $3, $4)
         RETURNING *;
         `,
-      [account_name, account_code]
+      [account_name, accCode, email, hashedPassword]
     );
 
-    return account;
+    const {rows: [profile]} = await client.query(
+      `
+        INSERT INTO profile(account_id, first_name, last_name, notifications_enabled)
+        VALUES($1, $2, $3, $4)
+        RETURNING *;
+      `,
+      [account.account_id, first_name, last_name, true]
+    );
+
+    await client.query("COMMIT");
+
+    return {
+      account,
+      profile,
+    };
   } catch (err) {
+    await client.query("ROLLBACK");
     if (err.code == "23505") {
       throw new Error("Account name already exists");
     }
     throw err;
+  } finally {
+    client.release();
   }
 };
 
