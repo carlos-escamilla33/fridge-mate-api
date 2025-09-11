@@ -76,7 +76,7 @@ const toggleNotifications = async ({profile_id, isNotificationsEnabled}) => {
             WHERE profile_id=$2
             RETURNING *;
             `,
-            [isNotificationsEnabled, account_id]
+            [isNotificationsEnabled, profile_id]
         );
 
         return profile;
