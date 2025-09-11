@@ -17,7 +17,24 @@ const createRecipe = async ({account_id, recipe_name, ingredients, instructions,
     }
 }
 
+const findRecipeById = async (id) => {
+    try {
+        const {rows: [recipe]} = await pool.query(
+            `
+            SELECT * FROM recipe
+            WHERE recipe_id=$1;
+            `,
+            [id]
+        );
+
+        return recipe;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createRecipe,
-
+    findRecipeById,
+    
 }
