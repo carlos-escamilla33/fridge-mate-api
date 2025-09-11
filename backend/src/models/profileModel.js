@@ -67,7 +67,7 @@ const updateProfile = async ({profile_id, first_name, last_name}) => {
     }
 }
 
-const toggleNotifications = async ({profile_id, isNotificationsEnabled}) => {
+const toggleProfileNotifications = async ({profile_id, isNotificationsEnabled}) => {
     try {
         const {rows: [profile]} = await pool.query(
             `
@@ -90,5 +90,5 @@ module.exports = {
     findProfileById,
     findProfilesByAccountId,
     updateProfile,
-    toggleNotifications
+    toggleProfileNotifications
 }
