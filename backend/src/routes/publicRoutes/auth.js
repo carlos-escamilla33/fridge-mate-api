@@ -1,0 +1,13 @@
+const express = require("express");
+const authRouter = express.Router();
+const {} = require("../controllers/authController");
+
+authRouter.use((req, res) => {
+    console.log("A request has been made to /auth");
+});
+
+authRouter.post("/register", createAccount);
+
+module.exports = {
+    authRouter
+}
