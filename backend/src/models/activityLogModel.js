@@ -17,9 +17,9 @@ const createActivityLog = async ({account_id, profile_id, action_type}) => {
     }
 }
 
-const findActivityLogByAccountId = async (account_id) => {
+const findActivityLogsByAccountId = async (account_id) => {
     try {
-        const {rows: [activity_log]} = await pool.query(
+        const {rows} = await pool.query(
             `
             SELECT * FROM activity_log
             WHERE account_id=$1;
@@ -27,15 +27,15 @@ const findActivityLogByAccountId = async (account_id) => {
             [account_id]
         );
 
-        return activity_log
+        return rows;
     } catch (err) {
         throw err;
     }
 }
 
-const findActivityLogByProfileId = async (profile_id) => {
+const findActivityLogsByProfileId = async (profile_id) => {
     try {
-        const {rows: [activity_log]} = await pool.query(
+        const {rows} = await pool.query(
             `
             SELECT * FROM activity_log
             WHERE profile_id=$1;
@@ -43,7 +43,7 @@ const findActivityLogByProfileId = async (profile_id) => {
             [profile_id]
         );
 
-        return activity_log;
+        return rows;
     } catch (err) {
         throw err;
     }
@@ -87,8 +87,8 @@ const deleteOldActivityLogs = async (account_id) => {
 
 module.exports = {
     createActivityLog,
-    findActivityLogByAccountId,
-    findActivityLogByProfileId,
+    findActivityLogsByAccountId,
+    findActivityLogsByProfileId,
     findActivityLogsByDateRange,
     deleteOldActivityLogs
 }
