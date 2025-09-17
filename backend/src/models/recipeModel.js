@@ -49,21 +49,21 @@ const findRecipesByAccountId = async (account_id) => {
     }
 }
 
-// const findAvailableRecipes = async (account_id) => {
-//     try {
-//         const {rows} = await pool.query(
-//             `
-//             SELECT * FROM recipe
-//             WHERE account_id=$1;
-//             `,
-//             [account_id]
-//         );
+const findAvailableRecipes = async (account_id) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            SELECT * FROM recipe
+            WHERE account_id=$1;
+            `,
+            [account_id]
+        );
 
-//         return rows;
-//     } catch (err) {
-//         throw err;
-//     }
-// }
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
 
 const updateRecipe = async ({recipe_id, recipe_name, ingredients, instructions, based_on_items}) => {
     try {
