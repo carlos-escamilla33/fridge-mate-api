@@ -33,6 +33,22 @@ const findActivityLogByAccountId = async (account_id) => {
     }
 }
 
+const findActivityLogByProfileId = async (profile_id) => {
+    try {
+        const {rows: [activity_log]} = await pool.query(
+            `
+            SELECT * FROM activity_log
+            WHERE profile_id=$1;
+            `,
+            [profile_id]
+        );
+
+        return activity_log;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createActivityLog,
     findActivityLogByAccountId,
