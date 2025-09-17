@@ -50,7 +50,7 @@ const findUnreadNotificationsByProfileId = async (profile_id) => {
     }
 }
 
-const markNotificationAsRead = async (notification_id, profile_id) => {
+const markNotificationAsReadByProfileId = async (notification_id, profile_id) => {
     try {
         const {rows: [notification]} = await pool.query(
             `
@@ -68,9 +68,28 @@ const markNotificationAsRead = async (notification_id, profile_id) => {
     }
 }
 
+const markAllNotificationsAsReadByProfileId = async (profile_id) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            UPDATE notification
+            SET is_read=$2
+            WHERE profile_id AND is_read=$3
+            RETURNING *;
+            `,
+            [profile_id, true, false]
+        );
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createNotification,
     findByNotificationsByProfileId,
     findUnreadNotificationsByProfileId,
-    markNotificationAsRead
+    markNotificationAsReadByProfileId,
+    markAllNotificationsAsReadByProfileId,
 }
