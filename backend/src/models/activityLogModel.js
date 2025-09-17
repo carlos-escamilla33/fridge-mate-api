@@ -49,7 +49,27 @@ const findActivityLogByProfileId = async (profile_id) => {
     }
 }
 
+const findActivityLogsByDateRange = async (account_id, startDate, endDate) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            SELECT * FROM activity_log
+            WHERE account_id=$1
+            AND created_at BETWEEN $2 AND $3
+            ORDER BY created_at DESC;
+            `,
+            [account_id, startDate, endDate]
+        );
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createActivityLog,
     findActivityLogByAccountId,
+    findActivityLogByProfileId,
+    findActivityLogsByDateRange
 }
