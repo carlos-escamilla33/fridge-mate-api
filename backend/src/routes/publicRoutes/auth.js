@@ -1,6 +1,7 @@
 const express = require("express");
 const authRouter = express.Router();
 const {register, login} = require("../controllers/authController");
+const {authenticateToken} = require("../middleware");
 
 authRouter.use((req, res, next) => {
     console.log("A request has been made to /auth");
