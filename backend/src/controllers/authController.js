@@ -1,4 +1,4 @@
-const {createAccount, findAccountByEmail} = require("../models/accountModel");
+const {createAccount, findAccountByEmail, authenticateLogins} = require("../models/accountModel");
 const jwt = require("jsonwebtoken");
 const {JWT_SECRET} = process.env;
 
@@ -42,7 +42,20 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
     const {email, password} = req.body;
     try {
-        
+        // all the work is done by the model function
+        const account = await authenticateLogins(email, password);
+
+        const token = jwt.sign(
+            {id: account.account_id, email: account.email},
+            JWT_SECRET,
+            {expiresIn: "1w"}
+        );
+
+        res.send({
+            message: "You Successfully Logged In!",
+            account,
+            token,
+        });
     } catch (err) {
         next(err);
     }
