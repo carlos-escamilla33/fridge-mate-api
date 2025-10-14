@@ -153,7 +153,7 @@ const updateAccountPassword = async (account_id, newPassword) => {
     );
 
     delete account.password;
-    
+
     return account;
   } catch (err) {
     throw err;
@@ -210,5 +210,6 @@ module.exports = {
   findAccountByCode,
   findAccountById,
   findAccountByEmail,
-  authenticateLogins
+  authenticateLogins,
+  updateAccountToken
 };

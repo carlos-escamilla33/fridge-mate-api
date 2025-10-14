@@ -1,4 +1,4 @@
-const {createAccount, findAccountByEmail, authenticateLogins} = require("../database/models/accountModel");
+const {createAccount, findAccountByEmail, authenticateLogins, updateAccountToken} = require("../database/models/accountModel");
 const jwt = require("jsonwebtoken");
 const {JWT_SECRET} = process.env;
 
@@ -67,8 +67,10 @@ const forgotPassword = async (req, res, next) => {
         const account = await findAccountByEmail(email);
 
         if (account) {
-            
-
+            const resetToken = crypto.randomBytes(32).toString("hex");
+            account.resetToken = resetToken;
+            account.resetTokenExpiry = new Date(Date.now() + 3600000);
+            await updateAccountToken(account.account_id, account.resetToken, account.resetTokenExpiry);
         }
 
         res.send({
@@ -84,3 +86,8 @@ module.exports = {
     login,
     forgotPassword,
 }
+
+/*
+UPDATE THE SCHEMA FOR THE ACCOUNT TABLE FOR TOKEN EXPIRATION
+ADD A NEW MODEL FUNCTION FOR UPDATING THE TOKEN EXPIRATION DATE
+*/
