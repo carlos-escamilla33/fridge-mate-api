@@ -1,26 +1,26 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-const EMAIL_HOST = process.env.EMAIL_HOST;
+const EMAIL = process.env.EMAIL;
+const PASS = process.env.EMAIL_PASSWORD;
+const USER = process.env.EMAIL_USER;
 
-const sendEmail = async (email, resetToken) => {
+const sendResetEmail = async (email, resetToken) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: `${EMAIL_HOST}`,
+      host: `${EMAIL}`,
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: `${EMAIL_USER}`,
-        pass: `${EMAIL_PASS}`,
+        user: `${USER}`,
+        pass: `${PASS}`,
       },
     });
 
     const info = await transporter.sendMail({
-        from: `${EMAIL_HOST}`,
+        from: `${EMAIL}`,
         to: `${email}`,
-        subject: `reset your password here: http://localhost:3000/api/auth/change-password?token=${resetToken}`,
-        text: "Hello world?",
+        subject: "no-reply-fridge-mate",
+        text: `reset your password here: http://localhost:3000/api/auth/reset-password?token=${resetToken}`,
     });
 
     console.log("Message sent:", info.messageId);
@@ -31,5 +31,5 @@ const sendEmail = async (email, resetToken) => {
 };
 
 module.exports = {
-  sendEmail,
+  sendResetEmail,
 };

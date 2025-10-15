@@ -120,7 +120,7 @@ const updateAccountDetails = async ({ account_id, account_name, email}) => {
   }
 };
 
-const updateAccountToken = async ({account_id, resetToken, resetTokenExpiry}) => {
+const updateAccountToken = async (account_id, resetToken, resetTokenExpiry) => {
   try {
     const {rows: [account]} = await pool.query(
       `
@@ -132,7 +132,7 @@ const updateAccountToken = async ({account_id, resetToken, resetTokenExpiry}) =>
       [resetToken, resetTokenExpiry, account_id]
     );
 
-    delete acccount.password;
+    delete account.password;
 
     return account;
   } catch (err) {
