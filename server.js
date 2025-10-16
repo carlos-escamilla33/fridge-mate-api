@@ -17,3 +17,5 @@ server.use("/api", apiRouter);
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+// server -> api -> route -> route action -> route controller

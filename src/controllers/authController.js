@@ -3,7 +3,7 @@ const {sendResetEmail} = require("../utils/sendResetEmail");
 const crypto = require('crypto');
 
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = process.env;
+const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 
 const register = async (req, res, next) => {
     const {account_name, first_name, last_name, email, password} = req.body;
@@ -26,16 +26,23 @@ const register = async (req, res, next) => {
         }
 
         const account = await createAccount(account_name, first_name, last_name, email, password);
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             {id: account.account_id, email: account.email},
             JWT_SECRET,
-            {expiresIn: "1w"}
+            {expiresIn: "15m"}
         );
+
+        const refreshToken = jwt.sign(
+            {id: account.account_id, email:account.email},
+            REFRESH_TOKEN_SECRET,
+            {expiresIn: "30d"}
+        )
 
         res.send({
             message: "You Successfully Registered!",
             account,
-            token,
+            accessToken,
+            refreshToken,
         });
     } catch (err) {
         next(err);
@@ -48,16 +55,23 @@ const login = async (req, res, next) => {
         // all the work is done by the model function
         const account = await authenticateLogins(email, password);
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             {id: account.account_id, email: account.email},
             JWT_SECRET,
-            {expiresIn: "1w"}
+            {expiresIn: "15m"}
+        );
+
+        const refreshToken = jwt.sign(
+            {id: account.account_id, email:account.email},
+            REFRESH_TOKEN_SECRET,
+            {expiresIn: "30d"}
         );
 
         res.send({
             message: "You Successfully Logged In!",
             account,
-            token,
+            accessToken,
+            refreshToken
         });
     } catch (err) {
         next(err);
@@ -109,6 +123,7 @@ const resetPassword = async (req, res, next) => {
 }
 
 const refresh = async (req, res, next) => {
+    const {refreshToken} = req.body;
     try {
         
     } catch (err) {
@@ -121,6 +136,7 @@ module.exports = {
     login,
     forgotPassword,
     resetPassword,
+    refresh,
 }
 
 /*
