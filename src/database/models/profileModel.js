@@ -1,6 +1,6 @@
 const pool = require("../config/database");
 
-const createProfile = async ({account_id, first_name, last_name, notifcations_enabled}) => {
+const createProfile = async (account_id, first_name, last_name) => {
     try {
         const {rows: [profile]} = await pool.query(
             `
@@ -8,7 +8,25 @@ const createProfile = async ({account_id, first_name, last_name, notifcations_en
             VALUES($1, $2, $3, $4)
             RETURNING *;
             `,
-            [account_id, first_name, last_name, notifcations_enabled]
+            [account_id, first_name, last_name, true]
+        );
+
+        return profile;
+    } catch (err) {
+        throw err;
+    }
+}
+
+const findProfileByName = async (account_id, first_name, last_name) => {
+    try {
+        const {rows: [profile]} = await pool.query(
+            `
+            SELECT * FROM profile
+            WHERE account_id=$1
+            AND first_name=$2
+            AND last_name=$3;
+            `,
+            [account_id, first_name, last_name]
         );
 
         return profile;
@@ -104,6 +122,7 @@ const deleteProfile = async (profile_id) => {
 
 module.exports = {
     createProfile,
+    findProfileByName,
     findProfileById,
     findProfilesByAccountId,
     updateProfile,

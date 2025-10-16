@@ -1,23 +1,16 @@
 const express = require("express");
-const accountRouter = express.Router();
-const jwt = requre("jsonwebtoken");
+const accountsRouter = express.Router();
+const {authenticateToken} = require("../middleware/authToken")
+const {registerProfile} = require("../controllers/accountsController");
 
-const {
-  createAccount,
-  deleteAccount,
-  getAllAccounts,
-  updateAccountDetails,
-  updateAccountPassword,
-  findAccountByCode,
-  findAccountById,
-  findAccountByEmail,
-  authenticateLogins,
-} = require("../database/models/accountModel");
-
-accountRouter.use((req, res, next) => {
+accountsRouter.use((req, res, next) => {
     console.log("A request has been made to /account");
 });
 
-accountRouter.post("", async (req, res, next) => {
+accountsRouter.get("/register/profile", authenticateToken, registerProfile);
 
-});
+module.exports = {
+    accountsRouter
+}
+
+
