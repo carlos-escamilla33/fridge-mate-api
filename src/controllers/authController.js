@@ -146,12 +146,36 @@ const refresh = async (req, res, next) => {
     }
 }
 
+const changePassword = async (req, res, next) => {
+    const {email} = req.user;
+    const {currentPassword, newPassword} = req.body;
+    try {
+        const account = await findAccountByEmail(email);
+
+        if (!account) {
+            res.sendStatus(403);
+        }
+
+        const isValid = await bcrypt.compare(currentPassword, account.password);
+        if (!isValid) {
+            return res.status(401).json({ message: "Current password is incorrect" });
+        }
+
+        await updateAccountPassword(email, newPassword);
+
+        return res.send({message: "Password reset successfully!"});
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     register,
     login,
     forgotPassword,
     resetPassword,
     refresh,
+    changePassword,
 }
 
 /*
