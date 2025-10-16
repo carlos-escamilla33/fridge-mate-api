@@ -90,17 +90,16 @@ const resetPassword = async (req, res, next) => {
     const {email, newPassword, resetToken} = req.body;
     try {
         // look for the account by reset token
-        const account = await findAccountByEmailAndValidToken(email, resetToken);
+        const _account = await findAccountByEmailAndValidToken(email, resetToken);
 
-        if (!account) {
+        if (!_account) {
             throw new Error({
                 message: "Invalid or expired reset link"
             });
         }
 
         await updateAccountPassword(email, newPassword);
-        
-        //  invalidate reset token here
+        await invalidiateResetToken(resetToken);
 
         res.send({
             message: "Password reset successfully!",

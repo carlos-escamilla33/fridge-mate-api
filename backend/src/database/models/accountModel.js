@@ -98,7 +98,8 @@ const findAccountByEmailAndValidToken = async (email, resetToken) => {
       `
       SELECT * FROM account
       WHERE resetToken=$1
-      AND email=$2;
+      AND email=$2
+      AND reset_token_expiry IS NOT NULL;
       `,
       [resetToken, email]
     );
@@ -179,6 +180,25 @@ const updateAccountPassword = async (email, newPassword) => {
   }
 }
 
+const invalidiateResetToken = async (resetToken) => {
+  try {
+    const {rows: [account]} = await pool.query(
+      `
+      UPDATE account
+      SET resetToken=NULL, reset_token_expiry=NULL
+      WHERE resetToken=$1
+      RETURNING *;
+      `,
+      [resetToken]
+    );
+
+    return account;
+    
+  } catch (err) {
+    throw err;
+  }
+}
+
 const deleteAccount = async (account_id) => {
   try {
     const {rows: [account],} = await pool.query(
@@ -231,5 +251,6 @@ module.exports = {
   findAccountByEmail,
   findAccountByEmailAndValidToken,
   authenticateLogins,
-  updateAccountToken
+  updateAccountToken,
+  invalidiateResetToken
 };
