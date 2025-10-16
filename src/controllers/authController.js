@@ -1,7 +1,9 @@
+const { access } = require("fs");
+const { promisify } = require('util'); 
+const verifyAsync = promisify(jwt.verify);
 const {createAccount, findAccountByEmail, authenticateLogins, updateAccountToken, updateAccountPassword, findAccountByEmailAndValidToken, invalidiateResetToken} = require("../database/models/accountModel");
 const {sendResetEmail} = require("../utils/sendResetEmail");
 const crypto = require('crypto');
-
 const jwt = require("jsonwebtoken");
 const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 
@@ -58,7 +60,7 @@ const login = async (req, res, next) => {
         const accessToken = jwt.sign(
             {id: account.account_id, email: account.email},
             JWT_SECRET,
-            {expiresIn: "15m"}
+            {expiresIn: "1s"} // CHANGE THIS LATER, THIS IS JUST FOR TESTING
         );
 
         const refreshToken = jwt.sign(
@@ -125,9 +127,22 @@ const resetPassword = async (req, res, next) => {
 const refresh = async (req, res, next) => {
     const {refreshToken} = req.body;
     try {
+       if (!refreshToken) {
+        return res.sendStatus(403);
+       }
+
+       const user = await verifyAsync(refreshToken, REFRESH_TOKEN_SECRET);
+
+       const accessToken = jwt.sign(
+        {id: user.id, email: user.email},
+        JWT_SECRET,
+        {expiresIn: "15m"}
+       );
+
+       return res.send({accessToken});
         
     } catch (err) {
-        throw err;
+        next(err);
     }
 }
 
