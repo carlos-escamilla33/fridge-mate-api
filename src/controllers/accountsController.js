@@ -5,10 +5,26 @@ const registerProfile = async (req, res, next) => {
     const {id} = req.user;
     const {first_name, last_name} = req.body;
     try {
-        // check to see if the profile is already in the account
-        // if the first name or last name are empty we throw an error
-        // if its not in the account already we can create it
-        // sign a token and refresh token back to the person creating the profile
+        if (!first_name || !last_name) {
+            return res.status(400).json({ 
+                message: "First name and last name are required" 
+            });
+        }
+        
+        const _profile = await findProfileByName(id, first_name, last_name);
+
+        if (_profile) {
+            return res.status(400).json({ 
+                message: "Profile with this name already exists" 
+            });
+        }
+        
+        const profile = await createProfile(id, first_name, last_name);
+        
+        res.send({
+            message: "Profile successfully created!",
+            profile,
+        });
     } catch (err) {
         next(err);
     }
