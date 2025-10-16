@@ -1,4 +1,5 @@
 const { access } = require("fs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 const { promisify } = require('util'); 
@@ -60,7 +61,7 @@ const login = async (req, res, next) => {
         const accessToken = jwt.sign(
             {id: account.account_id, email: account.email},
             JWT_SECRET,
-            {expiresIn: "1s"} // CHANGE THIS LATER, THIS IS JUST FOR TESTING
+            {expiresIn: "15m"} // CHANGE THIS LATER, THIS IS JUST FOR TESTING
         );
 
         const refreshToken = jwt.sign(
@@ -139,7 +140,10 @@ const refresh = async (req, res, next) => {
         {expiresIn: "15m"}
        );
 
-       return res.send({accessToken});
+       return res.send({
+            message: "Successfully refreshed accessToken",
+            accessToken
+        });
         
     } catch (err) {
         next(err);
