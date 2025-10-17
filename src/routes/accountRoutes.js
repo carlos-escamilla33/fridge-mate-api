@@ -4,7 +4,7 @@ const {authenticateToken} = require("../middleware/authToken")
 const {registerProfile, getAllAccountProfileInfo} = require("../controllers/accountsController");
 
 accountsRouter.use((req, res, next) => {
-    console.log("A request has been made to /account");
+    console.log("A request has been made to /accounts");
     next();
 });
 
