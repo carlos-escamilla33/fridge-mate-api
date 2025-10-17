@@ -1,11 +1,10 @@
-const {createProfile, findProfileByName} = require("../database/models/profileModel");
+const {createProfile, findProfileByName, findProfilesByAccountId} = require("../database/models/profileModel");
+const {findAccountById} = require("../database/models/accountModel");
 
 const registerProfile = async (req, res, next) => {
-    // const {id} = req.user;
-    // const {first_name, last_name} = req.body;
+    const {id} = req.user;
+    const {first_name, last_name} = req.body;
     try {
-        const {id} = req.user;
-        const {first_name, last_name} = req.body;
         if (!first_name || !last_name) {
             return res.sendStatus(400);
         }
@@ -27,6 +26,37 @@ const registerProfile = async (req, res, next) => {
     }
 }
 
+const getAllAccountProfileInfo = async (req, res, next) => {
+    const {id} = req.user;
+    try {
+        const account = await findAccountById(id);
+        const profiles = await findProfilesByAccountId(id);
+
+        if (!account || !profiles) {
+            return res.sendStatus(400);
+        }
+
+       return res.send({
+        account: {
+            id: account.account_id,
+            email: account.email,
+            createdAt: account.created_at
+        },
+        profiles: profiles.map(profile => ({
+            id: profile.profile_id,
+            firstName: profile.first_name,
+            lastName: profile.last_name,
+            notificationsEnabled: profile.notifications_enabled
+        }))
+       });
+
+    } catch (err) {
+        next(err);
+    }
+}
+
+
 module.exports = {
-    registerProfile
+    registerProfile,
+    getAllAccountProfileInfo
 }

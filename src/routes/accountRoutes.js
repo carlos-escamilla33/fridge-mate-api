@@ -1,7 +1,7 @@
 const express = require("express");
 const accountsRouter = express.Router();
 const {authenticateToken} = require("../middleware/authToken")
-const {registerProfile} = require("../controllers/accountsController");
+const {registerProfile, getAllAccountProfileInfo} = require("../controllers/accountsController");
 
 accountsRouter.use((req, res, next) => {
     console.log("A request has been made to /account");
@@ -9,6 +9,7 @@ accountsRouter.use((req, res, next) => {
 });
 
 accountsRouter.post("/register-profile", authenticateToken, registerProfile);
+accountsRouter.get("/me", authenticateToken, getAllAccountProfileInfo);
 
 module.exports = {
     accountsRouter
