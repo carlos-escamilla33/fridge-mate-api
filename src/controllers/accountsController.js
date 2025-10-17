@@ -1,5 +1,5 @@
 const {createProfile, findProfileByName, findProfilesByAccountId} = require("../database/models/profileModel");
-const {findAccountById, findAccountByEmail, updateAccountDetails} = require("../database/models/accountModel");
+const {findAccountById, findAccountByEmail, updateAccountDetails, deleteAccount} = require("../database/models/accountModel");
 const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 const jwt = require("jsonwebtoken");
 
@@ -105,9 +105,25 @@ const updateAccountInfo = async (req, res, next) => {
     }
 }
 
+const deleteWholeAccount = async (req, res, next) => {
+    const {id} = req.user;
+    try {
+        const deletedAccount = await deleteAccount(id);
+
+        if (!deletedAccount) {
+            return res.status(404).json({ message: "Account not found" });
+        }
+
+        return res.send({message: "Account successfully deleted!"});
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 module.exports = {
     registerProfile,
     getAllAccountProfileInfo,
     updateAccountInfo,
+    deleteWholeAccount,
 }
