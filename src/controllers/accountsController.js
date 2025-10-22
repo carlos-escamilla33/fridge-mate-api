@@ -4,9 +4,10 @@ const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 const jwt = require("jsonwebtoken");
 
 const registerProfile = async (req, res, next) => {
-    const {id} = req.user;
-    const {first_name, last_name} = req.body;
     try {
+        const {id} = req.user;
+        const {first_name, last_name} = req.body;
+
         if (!first_name || !last_name) {
             return res.sendStatus(400);
         }
@@ -29,8 +30,8 @@ const registerProfile = async (req, res, next) => {
 }
 
 const getAllAccountProfileInfo = async (req, res, next) => {
-    const {id} = req.user;
     try {
+        const {id} = req.user;
         const account = await findAccountById(id);
         const profiles = await findProfilesByAccountId(id);
 
@@ -58,9 +59,9 @@ const getAllAccountProfileInfo = async (req, res, next) => {
 }
 
 const updateAccountInfo = async (req, res, next) => {
-    const {id} = req.user;
-    const {accountName, newEmail} = req.body;
     try {
+        const {id} = req.user;
+        const {accountName, newEmail} = req.body;
         const _account = await findAccountById(id);
 
         if (!_account) {
@@ -106,8 +107,8 @@ const updateAccountInfo = async (req, res, next) => {
 }
 
 const deleteWholeAccount = async (req, res, next) => {
-    const {id} = req.user;
     try {
+        const {id} = req.user;
         const deletedAccount = await deleteAccount(id);
 
         if (!deletedAccount) {

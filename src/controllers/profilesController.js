@@ -2,8 +2,8 @@ const {findProfilesByAccountId, findProfileById, updateProfile, deleteProfile, t
 
 
 const getAllAccountProfiles = async (req, res, next) => {
-    const accountId = req.user.id;
     try {
+        const accountId = req.user.id;
         const profiles = await findProfilesByAccountId(accountId);
 
         return res.send({
@@ -15,9 +15,9 @@ const getAllAccountProfiles = async (req, res, next) => {
 }
 
 const getSingleProfile = async (req, res, next) => {
-    const {id} = req.params;
-    const accountId = req.user.id;
     try {
+        const {id} = req.params;
+        const accountId = req.user.id;
         const profile = await findProfileById(id);
 
         if (!profile) {
@@ -39,10 +39,10 @@ const getSingleProfile = async (req, res, next) => {
 }
 
 const updateProfileName = async (req, res, next) => {
-    const profileId = req.params.id;
-    const {firstName, lastName} = req.body;
-    const accountId = req.user.id;
     try {
+        const profileId = req.params.id;
+        const {firstName, lastName} = req.body;
+        const accountId = req.user.id;
         const profile = await updateProfile(profileId, accountId, firstName, lastName);
 
         if (!profile) {
@@ -59,9 +59,9 @@ const updateProfileName = async (req, res, next) => {
 }
 
 const deleteSingleProfile = async (req, res, next) => {
-    const profileId = req.params.id;
-    const accountId = req.user.id;
     try {
+        const profileId = req.params.id;
+        const accountId = req.user.id;
         const profile = await deleteProfile(accountId, profileId);
 
         if (!profile) {
@@ -77,10 +77,10 @@ const deleteSingleProfile = async (req, res, next) => {
 }
 
 const updateNotifications = async (req, res, next) => {
-    const profileId = req.params.id;
-    const accountId = req.user.id;
-    const {notificationSetting} = req.body;
     try {
+        const profileId = req.params.id;
+        const accountId = req.user.id;
+        const {notificationSetting} = req.body;
         const profile = await toggleProfileNotifications(accountId, profileId, notificationSetting);
 
         console.log(profile);

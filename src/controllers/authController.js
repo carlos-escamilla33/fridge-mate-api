@@ -9,8 +9,8 @@ const {sendResetEmail} = require("../utils/sendResetEmail");
 const crypto = require('crypto');
 
 const register = async (req, res, next) => {
-    const {account_name, first_name, last_name, email, password} = req.body;
     try {
+        const {account_name, first_name, last_name, email, password} = req.body;
         const _account = await findAccountByEmail(email);
 
         if (_account) {
@@ -54,8 +54,8 @@ const register = async (req, res, next) => {
 }
 
 const login = async (req, res, next) => {
-    const {email, password} = req.body;
     try {
+        const {email, password} = req.body;
         const account = await authenticateLogins(email, password);
 
         const accessToken = jwt.sign(
@@ -82,8 +82,8 @@ const login = async (req, res, next) => {
 }
 
 const forgotPassword = async (req, res, next) => {
-    const {email} = req.body;
     try {
+        const {email} = req.body;
         const account = await findAccountByEmail(email);
 
         if (account) {
@@ -104,8 +104,8 @@ const forgotPassword = async (req, res, next) => {
 }
 
 const resetPassword = async (req, res, next) => {
-    const {email, newPassword, resetToken} = req.body;
     try {
+        const {email, newPassword, resetToken} = req.body;
         const _account = await findAccountByEmailAndValidToken(email, resetToken);
 
         if (!_account) {
@@ -126,21 +126,22 @@ const resetPassword = async (req, res, next) => {
 }
 
 const refresh = async (req, res, next) => {
-    const {refreshToken} = req.body;
     try {
-       if (!refreshToken) {
-        return res.sendStatus(403);
-       }
+        const {refreshToken} = req.body;
 
-       const user = await verifyAsync(refreshToken, REFRESH_TOKEN_SECRET);
+        if (!refreshToken) {
+            return res.sendStatus(403);
+        }
 
-       const accessToken = jwt.sign(
+        const user = await verifyAsync(refreshToken, REFRESH_TOKEN_SECRET);
+
+        const accessToken = jwt.sign(
         {id: user.id, email: user.email},
         JWT_SECRET,
         {expiresIn: "15m"}
        );
 
-       return res.send({
+        return res.send({
             message: "Successfully refreshed accessToken",
             accessToken
         });
@@ -151,9 +152,9 @@ const refresh = async (req, res, next) => {
 }
 
 const changePassword = async (req, res, next) => {
-    const {email} = req.user;
-    const {currentPassword, newPassword} = req.body;
     try {
+        const {email} = req.user;
+        const {currentPassword, newPassword} = req.body;
         const account = await findAccountByEmail(email);
 
         if (!account) {
