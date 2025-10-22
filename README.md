@@ -1,4 +1,4 @@
-# fridge-mate-app
+# fridge-mate-server
 ---
 
 ## 🗄️ Database ER Diagram
