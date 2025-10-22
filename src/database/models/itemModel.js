@@ -66,16 +66,16 @@ const findItemsByProfileId = async (id) => {
     }
 }
 
-const findSoonExpiringItems = async (account_id) => {
+const findSoonExpiringItems = async (account_id, days) => {
     try {
         const {rows} = await pool.query(
             `
             SELECT * FROM item
             WHERE account_id=$1
-            AND expiration_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '3 days'
+            AND expiration_date BETWEEN CURRENT_DATE AND CURRENT_DATE + ($2 || ' days')::INTERVAL
             AND expiration_date >= CURRENT_DATE;
             `,
-            [account_id]
+            [account_id, days]
         );
 
         return rows;
