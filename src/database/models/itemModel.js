@@ -17,14 +17,15 @@ const createItem = async (account_id, profile_id, recipe_id, food_name, expirati
     }
 }
 
-const findItemById = async (id) => {
+const findItemById = async (account_id, item_id) => {
     try {
         const {rows: [item]} = await pool.query(
             `
             SELECT * FROM item
-            WHERE item_id=$1;
+            WHERE account_id=$1
+            AND item_id=$2;
             `,
-            [id]
+            [account_id, item_id]
         );
 
         return item;

@@ -1,4 +1,4 @@
-const {findItemsByAccountId, createItem} = require("../database/models/itemModel");
+const {findItemsByAccountId, createItem, findItemById} = require("../database/models/itemModel");
 const Joi = require("joi");
 
 const getAllAccountItems = async (req, res, next) => {
@@ -46,7 +46,26 @@ const createSingleItem = async (req, res, next) => {
     }
 }
 
+const getSingleItem = async (req, res, next) => {
+    try {
+        const itemId = req.params.id;
+        const accountId = req.user.id;
+        const item = await findItemById(accountId, itemId);
+
+        if (!item) {
+            res.status(404).json({message: "Item not found"});
+        }
+
+        return res.send({
+            item
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getAllAccountItems,
     createSingleItem,
+    getSingleItem,
 }
