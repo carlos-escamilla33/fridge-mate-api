@@ -1,4 +1,4 @@
-const {findProfilesByAccountId, findProfileById, updateProfile} = require("../database/models/profileModel");
+const {findProfilesByAccountId, findProfileById, updateProfile, deleteProfile} = require("../database/models/profileModel");
 
 
 const getAllAccountProfiles = async (req, res, next) => {
@@ -58,9 +58,27 @@ const updateProfileName = async (req, res, next) => {
     }
 }
 
+const deleteSingleProfile = async (req, res, next) => {
+    const profileId = req.params.id;
+    try {
+        const profile = await deleteProfile(profileId);
+
+        if (!profile) {
+            return res.status(404).json({message: "Profile not found"});
+        }
+
+        return res.send({
+            message: `${profile.first_name}'s Profile deleted successfully!`
+        })
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 module.exports = {
     getAllAccountProfiles,
     getSingleProfile,
     updateProfileName,
+    deleteSingleProfile,
 }
