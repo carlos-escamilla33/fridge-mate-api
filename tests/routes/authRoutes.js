@@ -3,7 +3,7 @@ const app = require("../../app");
 const {pool} = require("../../src/database/config/database");
 const { findAccountById } = require("../../src/database/models/accountModel");
 
-describe("API Account Routes", () => {
+describe("API Auth Routes", () => {
     let accId;
 
     beforeAll(async () => {
@@ -82,5 +82,9 @@ describe("API Account Routes", () => {
             expect(res.status).toBe(200);
             expect(res.body.message).toMatch(/Password reset successfully!/);
         });
+    });
+
+    describe("POST /api/auth/reset-password", () => {
+
     });
 });

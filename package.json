@@ -4,7 +4,7 @@
     "dev": "node --watch ./server.js",
     "test:account_models": "jest --watch ./tests/models/accountModel.test.js",
     "test:profile_models": "jest --watch ./tests/models/profileModels.test.js",
-    "test:account_routes": "jest --watch ./tests/routes/accountRoutes.test.js"
+    "test:auth_routes": "jest --watch ./tests/routes/authRoutes.test.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
