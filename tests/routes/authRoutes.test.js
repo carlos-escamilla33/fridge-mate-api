@@ -5,6 +5,7 @@ const { findAccountById } = require("../../src/database/models/accountModel");
 
 describe("API Auth Routes", () => {
     let accId;
+    let accessToken;
     let refreshToken;
     beforeAll(async () => {
         await pool.query("TRUNCATE TABLE account CASCADE");
@@ -26,6 +27,7 @@ describe("API Auth Routes", () => {
                     password: "Rileyrolls1"
                 });
             accId = res.body.account.account_id;
+            accessToken = res.body.accessToken;
             refreshToken = res.body.refreshToken;
             expect(res.status).toBe(201);
             expect(res.body.message).toMatch(/You Successfully Registered!/);
@@ -98,5 +100,21 @@ describe("API Auth Routes", () => {
             expect(res.body.message).toMatch(/Successfully refreshed accessToken/);
             expect(res.body.accessToken).toBeDefined();
         });
-    })
-});
+    });
+
+    describe("POST /api/auth/change-password", () => {
+        test("should update user's password", async () => {
+            const res = await request(app)
+                .post("/api/auth/change-password")
+                .set("Authorization", `Bearer ${accessToken}`)
+                .send({ 
+                    currentPassword: "RileyRules1",
+                    newPassword: "RileyRules111"
+                });
+            
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("message");
+            expect(res.body.message).toMatch(/Password reset successfully!/);
+        });
+    });
+}); 
