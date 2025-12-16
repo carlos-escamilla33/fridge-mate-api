@@ -1,8 +1,10 @@
 const request = require("supertest");
 const app = require("../../app");
 const {pool} = require("../../src/database/config/database");
+const { findAccountById } = require("../../src/database/models/accountModel");
 
 describe("API Account Routes", () => {
+    let accId;
 
     beforeAll(async () => {
         await pool.query("TRUNCATE TABLE account CASCADE");
@@ -23,6 +25,7 @@ describe("API Account Routes", () => {
                     email: "Rileyrolls1@gmail.com",
                     password: "Rileyrolls1"
                 });
+            accId = res.body.account.account_id;
             expect(res.status).toBe(201);
             expect(res.body.message).toMatch(/You Successfully Registered!/);
             expect(res.body).toHaveProperty("account");
@@ -49,16 +52,35 @@ describe("API Account Routes", () => {
         });
     });
 
-    describe("POST /api/auth/login", () => {
+    describe("POST /api/auth/forgot-password", () => {
         test("should send an email to an existing account for password reset", async () => {
             const res = await request(app)
                 .post("/api/auth/forgot-password")
                 .send({
-                    email: "Rileyrolls@gmail.com"
+                    email: "Rileyrolls1@gmail.com"
                 });
-
             expect(res.status).toBe(200);
             expect(res.body.message).toMatch(/If an account exists with that email, a reset link has been sent./);
         });
-    })
+    });
+
+    describe("POST /api/auth/reset-password", () => {
+        test("should reset the user's password", async () => {
+            acc = await findAccountById(accId);
+            
+            expect(acc).toBeDefined();
+            expect(acc).toHaveProperty("reset_token");
+
+            const res = await request(app)
+                .post("/api/auth/reset-password")
+                .send({
+                    email: acc.email,
+                    newPassword: "RileyRules1",
+                    resetToken: acc.reset_token
+                });
+
+            expect(res.status).toBe(200);
+            expect(res.body.message).toMatch(/Password reset successfully!/);
+        });
+    });
 });
