@@ -1,4 +1,4 @@
-const {createProfile, findProfileByName, findProfileById, findProfilesByAccountId, updateProfile, toggleProfileNotifications} = require("../../src/database/models/profileModel");
+const {createProfile, findProfileByName, findProfileById, findProfilesByAccountId, updateProfile, toggleProfileNotifications, deleteProfile} = require("../../src/database/models/profileModel");
 const {pool} = require("../../src/database/config/database");
 const { createAccount } = require("../../src/database/models/accountModel");
 
@@ -60,5 +60,13 @@ describe("Testing Profile Model Functions", () => {
         expect(updatedProfile).toBeDefined();
         expect(updatedProfile.notifications_enabled).toBeDefined();
         expect(updatedProfile.notifications_enabled).not.toEqual(profile.notifications_enabled);
+    });
+
+    test("should delete profile from database", async () => {
+        const deletedProfile = await deleteProfile(profile.account_id, profile.profile_id);
+        expect(deletedProfile).toBeDefined();
+        
+        const pro = await findProfileById(profile.profile_id);
+        expect(pro).toBeUndefined();
     });
 });
