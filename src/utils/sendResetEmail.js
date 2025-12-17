@@ -88,8 +88,3 @@ const sendResetEmail = async (email, resetToken) => {
 module.exports = {
   sendResetEmail,
 };
-
-
-module.exports = {
-  sendResetEmail,
-};
