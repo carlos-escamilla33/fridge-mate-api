@@ -94,7 +94,7 @@ const forgotPassword = async (req, res, next) => {
         }
 
         res.send({
-            message: "If an account exists with that email, a reset link has been sent."
+            message: "If an account exists with that email, a reset link has been sent. Please check your spam folder if you don't see it."
         });
     } catch (err) {
         next(err);
