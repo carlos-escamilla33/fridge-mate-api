@@ -30,55 +30,63 @@ const USER = process.env.EMAIL_USER;
 //   }
 // };
 
-const sendResetEmail = async (email, resetToken) => {
+const sendResetEmail = async (EMAIL, resetToken) => {
   try {
-    const transporter = process.env.NODE_ENV === 'production'
-      ? nodemailer.createTransport({
-          host: "smtp.sendgrid.net",
-          port: 465,
-          secure: true,
-          auth: {
-            user: "apikey",
-            pass: process.env.SENDGRID_API_KEY,
-          },
-        })
-      : nodemailer.createTransport({
-          host: process.env.EMAIL,
-          port: 587,
-          secure: false,
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD,
-          },
-        });
+    if (process.env.NODE_ENV === "production") {
+      SVGFEColorMatrixElement.setApiKey(process.env.SENDGRID_API_KEY);
 
-    const resetLink = process.env.NODE_ENV === 'production'
-      ? `https://your-frontend-url.com/reset-password?token=${resetToken}`
-      : `http://localhost:3000/api/auth/reset-password?token=${resetToken}`;
+      const resetLink = `https://your-frontend-url.com/reset-password?token=${resetToken}`;
 
-    const info = await transporter.sendMail({
-      from: '"Fridge Mate" <carlosaescamilla3@gmail.com>',
-      to: email,
-      subject: "Password Reset Request - Fridge Mate",
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>You requested to reset your password for Fridge Mate.</p>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-        <p>Or copy and paste this link into your browser:</p>
-        <p>${resetLink}</p>
-        <p><strong>This link will expire in 1 hour.</strong></p>
-        <p>If you didn't request this password reset, please ignore this email.</p>
-        <br>
-        <p>Best regards,<br>Fridge Mate Team</p>
-      `,
-      text: `You requested to reset your password. Click this link: ${resetLink}. This link will expire in 1 hour.` // Plain text fallback
-    });
+      const msg = {
+        to: email,
+        from: "carlosaescamilla3@gmail.com",
+        subject: "Password Reset Request - Fridge Mate",
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>You requested to reset your password for Fridge Mate.</p>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+          <p>Or copy and paste this link into your browser:</p>
+          <p>${resetLink}</p>
+          <p><strong>This link will expire in 1 hour.</strong></p>
+          <p>If you didn't request this password reset, please ignore this email.</p>
+          <br>
+          <p>Best regards,<br>Fridge Mate Team</p>
+        `,
+        text: `You requested to reset your password. Click this link: ${resetLink}. This link will expire in 1 hour.`,
+      };
 
-    console.log("Password reset email sent:", info.messageId);
+      await sgMail.send(msg);
+      console.log("Password reset email sent via SendGrid API");
+    } else {
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL,
+        port: 2525,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
 
+      const resetLink = `http://localhost:3000/api/auth/reset-password?token=${resetToken}`;
+
+      await transporter.sendMail({
+        from: '"Fridge Mate" <noreply@fridgemate.com>',
+        to: email,
+        subject: "Password Reset Request - Fridge Mate",
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>You requested to reset your password for Fridge Mate.</p>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}">Reset Password</a>
+          <p><strong>This link will expire in 1 hour.</strong></p>
+        `,
+      });
+
+      console.log("Password reset email sent via Mailtrap");
+    }
   } catch (err) {
-    console.error("Error sending email:", err);
+    console.error("Error sending email", err);
     throw err;
   }
 };

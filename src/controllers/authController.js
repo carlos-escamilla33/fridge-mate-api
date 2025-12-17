@@ -82,6 +82,8 @@ const forgotPassword = async (req, res, next) => {
         const {email} = req.body;
         const account = await findAccountByEmail(email);
 
+        console.log(account);
+
         if (account) {
             const resetToken = crypto.randomBytes(32).toString("hex");
             const resetTokenExpiry = new Date(Date.now() + 3600000);
