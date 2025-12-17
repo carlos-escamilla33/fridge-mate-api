@@ -32,12 +32,11 @@ const USER = process.env.EMAIL_USER;
 
 const sendResetEmail = async (email, resetToken) => {
   try {
-    // Create transporter based on environment
     const transporter = process.env.NODE_ENV === 'production'
       ? nodemailer.createTransport({
           host: "smtp.sendgrid.net",
-          port: 587,
-          secure: false,
+          port: 465,
+          secure: true,
           auth: {
             user: "apikey",
             pass: process.env.SENDGRID_API_KEY,
@@ -53,13 +52,12 @@ const sendResetEmail = async (email, resetToken) => {
           },
         });
 
-    // Create reset link based on environment
     const resetLink = process.env.NODE_ENV === 'production'
       ? `https://your-frontend-url.com/reset-password?token=${resetToken}`
       : `http://localhost:3000/api/auth/reset-password?token=${resetToken}`;
 
     const info = await transporter.sendMail({
-      from: '"Fridge Mate" <carlosaescamilla3@gmail.com>', // Your verified SendGrid sender
+      from: '"Fridge Mate" <carlosaescamilla3@gmail.com>',
       to: email,
       subject: "Password Reset Request - Fridge Mate",
       html: `
