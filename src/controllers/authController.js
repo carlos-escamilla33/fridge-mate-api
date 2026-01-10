@@ -5,6 +5,7 @@ const {JWT_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 const { promisify } = require('util'); 
 const verifyAsync = promisify(jwt.verify);
 const {createAccount, findAccountByEmail, authenticateLogins, updateAccountToken, updateAccountPassword, findAccountByEmailAndValidToken, invalidiateResetToken} = require("../database/models/accountModel");
+const {findProfilesByAccountId} = require("../database/models/profileModel");
 const {sendResetEmail} = require("../utils/sendResetEmail");
 const crypto = require('crypto');
 
@@ -53,6 +54,7 @@ const login = async (req, res, next) => {
     try {
         const {email, password} = req.body;
         const account = await authenticateLogins(email, password);
+        const profiles = await findProfilesByAccountId(account.account_id);
 
         const accessToken = jwt.sign(
             {id: account.account_id, email: account.email},
@@ -69,6 +71,7 @@ const login = async (req, res, next) => {
         res.status(200).json({
             message: "You Successfully Logged In!",
             account,
+            profiles,
             accessToken,
             refreshToken
         });
