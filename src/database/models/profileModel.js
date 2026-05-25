@@ -1,14 +1,14 @@
 const {pool} = require("../config/database");
 
-const createProfile = async (account_id, first_name, last_name) => {
+const createProfile = async (account_id, first_name) => {
     try {
         const {rows: [profile]} = await pool.query(
             `
-            INSERT INTO profile(account_id, first_name, last_name, notifications_enabled)
-            VALUES($1, $2, $3, $4)
+            INSERT INTO profile(account_id, first_name, notifications_enabled)
+            VALUES($1, $2, $3)
             RETURNING *;
             `,
-            [account_id, first_name, last_name, true]
+            [account_id, first_name, true]
         );
 
         return profile;
@@ -17,16 +17,15 @@ const createProfile = async (account_id, first_name, last_name) => {
     }
 }
 
-const findProfileByName = async (account_id, first_name, last_name) => {
+const findProfileByName = async (account_id, first_name) => {
     try {
         const {rows: [profile]} = await pool.query(
             `
             SELECT * FROM profile
             WHERE account_id=$1
             AND first_name=$2
-            AND last_name=$3;
             `,
-            [account_id, first_name, last_name]
+            [account_id, first_name]
         );
 
         return profile;
@@ -67,17 +66,17 @@ const findProfilesByAccountId = async (account_id) => {
     }
 }
 
-const updateProfile = async (profile_id, account_id, first_name, last_name) => {
+const updateProfile = async (profile_id, account_id, first_name) => {
     try {
         const {rows: [profile]} = await pool.query(
             `
             UPDATE profile
-            SET first_name=$1, last_name=$2
-            WHERE profile_id=$3
-            AND account_id=$4
+            SET first_name=$1
+            WHERE profile_id=$2
+            AND account_id=$3
             RETURNING *;
             `,
-            [first_name, last_name, profile_id, account_id]
+            [first_name, profile_id, account_id]
         );
 
         return profile;

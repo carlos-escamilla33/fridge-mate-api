@@ -2,7 +2,7 @@ const {pool} = require("../config/database");
 const bcrypt = require("bcrypt");
 const { hashPasswordHelper, generateCodeHelper } = require("./helpers");
 
-const createAccount = async ({account_name, first_name, last_name, email, password}) => {
+const createAccount = async ({account_name, first_name, email, password}) => {
   const client = await pool.connect();
 
   try {
@@ -20,11 +20,11 @@ const createAccount = async ({account_name, first_name, last_name, email, passwo
 
     const {rows: [profile]} = await client.query(
       `
-        INSERT INTO profile(account_id, first_name, last_name, notifications_enabled)
-        VALUES($1, $2, $3, $4)
+        INSERT INTO profile(account_id, first_name, notifications_enabled)
+        VALUES($1, $2, $3)
         RETURNING *;
       `,
-      [account.account_id, first_name, last_name, true]
+      [account.account_id, first_name, true]
     );
 
     await client.query("COMMIT");

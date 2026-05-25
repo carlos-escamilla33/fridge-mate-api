@@ -41,9 +41,9 @@ const getSingleProfile = async (req, res, next) => {
 const updateProfileName = async (req, res, next) => {
     try {
         const profileId = req.params.id;
-        const {firstName, lastName} = req.body;
+        const {firstName} = req.body;
         const accountId = req.user.id;
-        const profile = await updateProfile(profileId, accountId, firstName, lastName);
+        const profile = await updateProfile(profileId, accountId, firstName);
 
         if (!profile) {
             return res.status(404).json({message: "Profile not found"});

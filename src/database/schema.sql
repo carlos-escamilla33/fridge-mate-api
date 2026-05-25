@@ -185,7 +185,6 @@ ALTER SEQUENCE public.notification_notification_id_seq OWNED BY public.notificat
 CREATE TABLE public.profile (
     profile_id integer NOT NULL,
     first_name character varying(255),
-    last_name character varying(255),
     notifications_enabled boolean,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     account_id integer
