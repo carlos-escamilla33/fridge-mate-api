@@ -27,16 +27,18 @@ const scanSchema = {
 };
 
 const buildPrompt = (today) => {
-    return `Today's date is ${today}. This photo shows groceries or the inside of a fridge.
+    return `Today's date is ${today}. Someone is adding a food item to their fridge tracker by photographing it.
 
-List every food or drink item you can actually see. For each item:
+Identify only the main subject: the one food or drink item that takes up most of the photo and is clearly what they're pointing the camera at. Ignore everything else in the background or at the edges, even if it's food.
+
+Return exactly one item with:
 - foodName: a short, plain name a person would write on a list ("Whole milk", "Strawberries", "Cheddar cheese"). For packaged goods, name the product type, not just the brand.
-- quantity: how many of that item are visible (at least 1).
+- quantity: how many of that same item are in the main subject (e.g. 3 for three apples in the shot), at least 1.
 - estimatedExpirationDate: YYYY-MM-DD, your best estimate from typical refrigerated shelf life counted from today, adjusted for any visible ripeness or spoilage.
 - ripenessLevel: one or two words, at most 30 characters: "fresh", "ripe", "overripe", "wilting", or "n/a" for packaged goods.
 - confidence: how sure you are about what the item is.
 
-Only include items you can see. If there is no food in the photo, return an empty list.`;
+If there is no food or drink as the main subject, return an empty list.`;
 }
 
 const scanError = (statusCode, message) => {
@@ -102,7 +104,8 @@ const scanFoodImage = async (imageBase64, mediaType) => {
         const text = response.content.find((block) => block.type === "text").text;
         const {items} = JSON.parse(text);
 
-        return items;
+        // Only the main subject of the photo; ignore anything extra the model returned.
+        return items.slice(0, 1);
     } catch (err) {
         console.error("[foodScanner] unparseable output");
         throw scanError(422, "Couldn't read that photo. Try another angle.");
