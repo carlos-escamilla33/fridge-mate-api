@@ -111,7 +111,8 @@ CREATE TABLE public.item (
     ripeness_level character varying(30),
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    recipe_id integer
+    recipe_id integer,
+    image_data bytea
 );
 
 
