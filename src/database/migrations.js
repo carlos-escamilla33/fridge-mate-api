@@ -7,6 +7,9 @@ const runMigrations = async () => {
         // Photo of the item from the scan, stored as a small JPEG. Nullable: manually added items have none.
         await pool.query(`ALTER TABLE item ADD COLUMN IF NOT EXISTS image_data bytea;`);
 
+        // Set when someone dismisses this item's grocery-list suggestion, so it stays dismissed.
+        await pool.query(`ALTER TABLE item ADD COLUMN IF NOT EXISTS grocery_dismissed boolean NOT NULL DEFAULT false;`);
+
         // Shared household grocery list. source_item_id points at the fridge item it was suggested
         // from (no foreign key, since that item is usually used up and deleted).
         await pool.query(`

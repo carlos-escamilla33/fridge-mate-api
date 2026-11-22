@@ -2,7 +2,7 @@ const {pool} = require("../config/database");
 
 // Every item column except image_data, which can be large. Photos are served by GET /api/items/:id/image.
 const ITEM_COLUMNS = `item_id, account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level,
-    created_at, updated_at, (image_data IS NOT NULL) AS has_image`;
+    created_at, updated_at, grocery_dismissed, (image_data IS NOT NULL) AS has_image`;
 
 const createItem = async (account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level) => {
     try {
@@ -228,8 +228,29 @@ const findItemImage = async (account_id, item_id) => {
     }
 }
 
+// Dismisses the grocery suggestion for every item in the account with this food name.
+const dismissGrocerySuggestion = async (account_id, food_name) => {
+    try {
+        const {rows} = await pool.query(
+            `
+            UPDATE item
+            SET grocery_dismissed=true
+            WHERE account_id=$1
+            AND LOWER(TRIM(food_name))=LOWER(TRIM($2))
+            RETURNING item_id;
+            `,
+            [account_id, food_name]
+        );
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createItem,
+    dismissGrocerySuggestion,
     findItemImage,
     createItemsBulk,
     findItemById,

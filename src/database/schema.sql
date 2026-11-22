@@ -112,7 +112,8 @@ CREATE TABLE public.item (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     recipe_id integer,
-    image_data bytea
+    image_data bytea,
+    grocery_dismissed boolean DEFAULT false NOT NULL
 );
 
 
