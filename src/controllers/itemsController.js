@@ -165,7 +165,7 @@ const scanItems = async (req, res, next) => {
     }
 }
 
-const MAX_COPIES_PER_ITEM = 20;
+const MAX_QUANTITY = 99;
 
 const bulkSchema = Joi.object({
         profileId: Joi.number().integer().positive().required(),
@@ -173,7 +173,7 @@ const bulkSchema = Joi.object({
                 foodName: Joi.string().min(2).max(100).required(),
                 expirationDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
                 ripenessLevel: Joi.string().min(1).max(30).required(),
-                quantity: Joi.number().integer().min(1).max(MAX_COPIES_PER_ITEM).default(1),
+                quantity: Joi.number().integer().min(1).max(MAX_QUANTITY).default(1),
                 image: Joi.string().base64().max(400000).optional(),
         })),
 });
@@ -193,15 +193,14 @@ const createBulkItems = async (req, res, next) => {
             return res.status(403).json({message: "That profile doesn't belong to this account"});
         }
 
-        // There's no quantity column, so "3 apples" becomes three item rows.
-        const rows = value.items.flatMap((item) =>
-            Array.from({length: item.quantity}, () => ({
-                food_name: item.foodName,
-                expiration_date: item.expirationDate,
-                ripeness_level: item.ripenessLevel,
-                image_data: item.image ? Buffer.from(item.image, "base64") : null,
-            }))
-        );
+        // One row per item, with its quantity (a bag of 12 rolls is one entry, quantity 12).
+        const rows = value.items.map((item) => ({
+            food_name: item.foodName,
+            quantity: item.quantity,
+            expiration_date: item.expirationDate,
+            ripeness_level: item.ripenessLevel,
+            image_data: item.image ? Buffer.from(item.image, "base64") : null,
+        }));
 
         const items = await createItemsBulk(accountId, value.profileId, rows);
 
