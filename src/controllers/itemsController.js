@@ -1,4 +1,4 @@
-const {findItemsByAccountId, createItem, createItemsBulk, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
+const {findItemsByAccountId, createItem, createItemsBulk, findItemImage, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
 const {findProfileById} = require("../database/models/profileModel");
 const {scanFoodImage} = require("../services/foodScanner");
 const Joi = require("joi");
@@ -174,6 +174,7 @@ const bulkSchema = Joi.object({
                 expirationDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
                 ripenessLevel: Joi.string().min(1).max(30).required(),
                 quantity: Joi.number().integer().min(1).max(MAX_COPIES_PER_ITEM).default(1),
+                image: Joi.string().base64().max(400000).optional(),
         })),
 });
 
@@ -198,6 +199,7 @@ const createBulkItems = async (req, res, next) => {
                 food_name: item.foodName,
                 expiration_date: item.expirationDate,
                 ripeness_level: item.ripenessLevel,
+                image_data: item.image ? Buffer.from(item.image, "base64") : null,
             }))
         );
 
@@ -212,8 +214,26 @@ const createBulkItems = async (req, res, next) => {
     }
 }
 
+const getItemImage = async (req, res, next) => {
+    try {
+        const accountId = req.user.id;
+        const image = await findItemImage(accountId, req.params.id);
+
+        if (!image) {
+            return res.status(404).json({message: "No photo for this item"});
+        }
+
+        res.set("Content-Type", "image/jpeg");
+        res.set("Cache-Control", "private, max-age=86400");
+        return res.send(image);
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     scanItems,
+    getItemImage,
     createBulkItems,
     getAllAccountItems,
     createSingleItem,

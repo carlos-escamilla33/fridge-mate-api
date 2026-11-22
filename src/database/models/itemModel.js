@@ -189,14 +189,14 @@ const createItemsBulk = async (account_id, profile_id, items) => {
         await client.query("BEGIN");
         const created = [];
 
-        for (const {food_name, expiration_date, ripeness_level} of items) {
+        for (const {food_name, expiration_date, ripeness_level, image_data} of items) {
             const {rows: [item]} = await client.query(
                 `
-                INSERT INTO item(account_id, profile_id, food_name, expiration_date, ripeness_level)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO item(account_id, profile_id, food_name, expiration_date, ripeness_level, image_data)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING ${ITEM_COLUMNS};
                 `,
-                [account_id, profile_id, food_name, expiration_date, ripeness_level]
+                [account_id, profile_id, food_name, expiration_date, ripeness_level, image_data ?? null]
             );
             created.push(item);
         }
@@ -211,8 +211,26 @@ const createItemsBulk = async (account_id, profile_id, items) => {
     }
 }
 
+const findItemImage = async (account_id, item_id) => {
+    try {
+        const {rows: [row]} = await pool.query(
+            `
+            SELECT image_data FROM item
+            WHERE account_id=$1
+            AND item_id=$2;
+            `,
+            [account_id, item_id]
+        );
+
+        return row?.image_data ?? null;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     createItem,
+    findItemImage,
     createItemsBulk,
     findItemById,
     findItemsByAccountId,
