@@ -46,6 +46,11 @@ const scanError = (statusCode, message) => {
 }
 
 const scanFoodImage = async (imageBase64, mediaType) => {
+    if (!process.env.CLAUDE_API_KEY) {
+        console.error("[foodScanner] CLAUDE_API_KEY is not set");
+        throw scanError(503, "AI scanning is unavailable right now.");
+    }
+
     const today = new Date().toISOString().slice(0, 10);
     let response;
 
