@@ -7,6 +7,9 @@ const runMigrations = async () => {
         // Photo of the item from the scan, stored as a small JPEG. Nullable: manually added items have none.
         await pool.query(`ALTER TABLE item ADD COLUMN IF NOT EXISTS image_data bytea;`);
 
+        // How many of this item there are (e.g. a bag of 12 rolls is one row with quantity 12).
+        await pool.query(`ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity integer NOT NULL DEFAULT 1;`);
+
         // Set when someone dismisses this item's grocery-list suggestion, so it stays dismissed.
         await pool.query(`ALTER TABLE item ADD COLUMN IF NOT EXISTS grocery_dismissed boolean NOT NULL DEFAULT false;`);
 

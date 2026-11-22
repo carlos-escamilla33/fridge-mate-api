@@ -1,7 +1,7 @@
 const {pool} = require("../config/database");
 
 // Every item column except image_data, which can be large. Photos are served by GET /api/items/:id/image.
-const ITEM_COLUMNS = `item_id, account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level,
+const ITEM_COLUMNS = `item_id, account_id, profile_id, recipe_id, food_name, quantity, expiration_date, ripeness_level,
     created_at, updated_at, grocery_dismissed, (image_data IS NOT NULL) AS has_image`;
 
 const createItem = async (account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level) => {
@@ -189,14 +189,14 @@ const createItemsBulk = async (account_id, profile_id, items) => {
         await client.query("BEGIN");
         const created = [];
 
-        for (const {food_name, expiration_date, ripeness_level, image_data} of items) {
+        for (const {food_name, quantity, expiration_date, ripeness_level, image_data} of items) {
             const {rows: [item]} = await client.query(
                 `
-                INSERT INTO item(account_id, profile_id, food_name, expiration_date, ripeness_level, image_data)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                INSERT INTO item(account_id, profile_id, food_name, quantity, expiration_date, ripeness_level, image_data)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING ${ITEM_COLUMNS};
                 `,
-                [account_id, profile_id, food_name, expiration_date, ripeness_level, image_data ?? null]
+                [account_id, profile_id, food_name, quantity ?? 1, expiration_date, ripeness_level, image_data ?? null]
             );
             created.push(item);
         }
