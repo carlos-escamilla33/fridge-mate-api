@@ -1,4 +1,4 @@
-const {findItemsByAccountId, createItem, createItemsBulk, findItemImage, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
+const {findItemsByAccountId, createItem, createItemsBulk, findItemImage, dismissGrocerySuggestion, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
 const {findProfileById} = require("../database/models/profileModel");
 const {scanFoodImage} = require("../services/foodScanner");
 const Joi = require("joi");
@@ -231,8 +231,33 @@ const getItemImage = async (req, res, next) => {
     }
 }
 
+const dismissSchema = Joi.object({
+        foodName: Joi.string().trim().min(1).max(255).required(),
+});
+
+const dismissSuggestion = async (req, res, next) => {
+    try {
+        const {error, value} = dismissSchema.validate(req.body);
+        const accountId = req.user.id;
+
+        if (error) {
+            return res.status(400).json({message: error.details[0].message});
+        }
+
+        const dismissed = await dismissGrocerySuggestion(accountId, value.foodName);
+
+        return res.send({
+            message: "Suggestion dismissed",
+            itemIds: dismissed.map((row) => row.item_id)
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     scanItems,
+    dismissSuggestion,
     getItemImage,
     createBulkItems,
     getAllAccountItems,
