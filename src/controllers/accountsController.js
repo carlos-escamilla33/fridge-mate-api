@@ -6,21 +6,21 @@ const jwt = require("jsonwebtoken");
 const registerProfile = async (req, res, next) => {
     try {
         const {id} = req.user;
-        const {first_name, last_name} = req.body;
+        const first_name = req.body.first_name?.trim();
 
-        if (!first_name || !last_name) {
-            return res.sendStatus(400);
+        if (!first_name) {
+            return res.status(400).json({message: "first_name is required"});
         }
-        
-        const _profile = await findProfileByName(id, first_name, last_name);
+
+        const _profile = await findProfileByName(id, first_name);
 
         if (_profile) {
-            return res.sendStatus(400);
+            return res.status(400).json({message: `A profile named ${first_name} already exists`});
         }
 
-        const profile = await createProfile(id, first_name, last_name);
-        
-        return res.send({
+        const profile = await createProfile(id, first_name);
+
+        return res.status(201).json({
             message: "Profile successfully created!",
             profile,
         });
