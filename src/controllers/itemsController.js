@@ -13,7 +13,7 @@ const itemSchema = Joi.object({
 const getAllAccountItems = async (req, res, next) => {
     try {
         const accountId = req.user.id;
-        const items = findItemsByAccountId(accountId);
+        const items = await findItemsByAccountId(accountId);
 
         return res.send({
             items
@@ -55,7 +55,7 @@ const getSingleItem = async (req, res, next) => {
         const item = await findItemById(accountId, itemId);
 
         if (!item) {
-            res.status(404).json({message: "Item not found"});
+            return res.status(404).json({message: "Item not found"});
         }
 
         return res.send({
@@ -80,7 +80,7 @@ const updateSingleItem = async (req, res, next) => {
         const item = await updateItem(accountId, profileId, itemId, foodName, expirationDate, ripenessLevel);
 
         if (!item) {
-            res.status(404).json({message: "Error updating item"});
+            return res.status(404).json({message: "Item not found"});
         }
 
         return res.send({
@@ -100,7 +100,7 @@ const deleteSingleItem = async (req, res, next) => {
         const item = await deleteItem(accountId, itemId);
 
         if (!item) {
-            res.status(500).json({message: "Error in deleting item"});
+            return res.status(404).json({message: "Item not found"});
         }
 
         return res.send({

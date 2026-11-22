@@ -24,8 +24,6 @@ Personal project for one household; not a public product. Favor simple, working 
 - Secrets live in `.env` (gitignored). `CLAUDE_API_KEY` (Anthropic API key) is set there. Never log it or return it.
 
 ## Known issues (not yet fixed)
-- `getAllAccountItems` is missing `await` on `findItemsByAccountId`.
-- `getSingleItem` doesn't `return` after the 404, so it falls through.
 - `updateProfileName` has an empty `catch`.
 - Login issues 30-day access tokens (marked "CHANGE THIS BACK").
 - Tests in `tests/` still reference `last_name`.

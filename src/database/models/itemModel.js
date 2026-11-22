@@ -40,6 +40,7 @@ const findItemsByAccountId = async (account_id) => {
             `
             SELECT * FROM item
             WHERE account_id=$1
+            ORDER BY expiration_date ASC;
             `,
             [account_id]
         );
