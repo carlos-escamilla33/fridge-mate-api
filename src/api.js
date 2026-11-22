@@ -4,11 +4,13 @@ const {authRouter} = require("./routes/authRoutes");
 const {accountsRouter} = require("./routes/accountRoutes");
 const {profileRouter} = require("./routes/profileRouter");
 const {itemsRouter} = require("./routes/itemsRouter");
+const {groceriesRouter} = require("./routes/groceriesRouter");
 
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/accounts", accountsRouter);
 apiRouter.use("/profiles", profileRouter);
 apiRouter.use("/items", itemsRouter);
+apiRouter.use("/groceries", groceriesRouter);
 
 apiRouter.use((err, req, res, next) => {
   console.error(err);
