@@ -21,7 +21,7 @@ Personal project for one household; not a public product. Favor simple, working 
 
 ## Conventions
 - Errors to the client: `res.status(4xx).json({ message })`. The app's `callApi` shows `message` to the user; avoid bare `res.sendStatus(400)`.
-- Secrets live in `.env` (gitignored). `ANTHROPIC_API_KEY` is set there. Never log it or return it.
+- Secrets live in `.env` (gitignored). `CLAUDE_API_KEY` (Anthropic API key) is set there. Never log it or return it.
 
 ## Known issues (not yet fixed)
 - `getAllAccountItems` is missing `await` on `findItemsByAccountId`.
@@ -31,4 +31,4 @@ Personal project for one household; not a public product. Favor simple, working 
 - Tests in `tests/` still reference `last_name`.
 
 ## In-progress feature
-AI photo scanning of food items. Spec: `docs/ai-scan-plan.md`.
+AI photo scanning: `POST /api/items/scan` (src/services/foodScanner.js) and `POST /api/items/bulk`. Spec: `docs/ai-scan-plan.md`.

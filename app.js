@@ -6,7 +6,8 @@ const apiRouter = require("./src/api");
 
 const app = express();
 
-app.use(express.json());
+// 10mb so base64 photos for /api/items/scan fit (default is 100kb).
+app.use(express.json({limit: "10mb"}));
 app.use(morgan("dev"));
 app.use(express.urlencoded({extended:true}));
 app.use(cors());

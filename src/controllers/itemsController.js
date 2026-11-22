@@ -1,4 +1,6 @@
-const {findItemsByAccountId, createItem, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
+const {findItemsByAccountId, createItem, createItemsBulk, findItemById, updateItem, deleteItem, findSoonExpiringItems, findExpiredItems} = require("../database/models/itemModel");
+const {findProfileById} = require("../database/models/profileModel");
+const {scanFoodImage} = require("../services/foodScanner");
 const Joi = require("joi");
 const itemSchema = Joi.object({
         profileId: Joi.number().integer().positive().required(),
@@ -139,7 +141,80 @@ const getExpiredItems = async (req, res, next) => {
     }
 }
 
+const scanSchema = Joi.object({
+        image: Joi.string().base64().required(),
+        mediaType: Joi.string().valid("image/jpeg", "image/png", "image/webp").required(),
+});
+
+const scanItems = async (req, res, next) => {
+    try {
+        const {error, value} = scanSchema.validate(req.body);
+
+        if (error) {
+            return res.status(400).json({message: error.details[0].message});
+        }
+
+        const items = await scanFoodImage(value.image, value.mediaType);
+
+        return res.send({items});
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({message: err.message});
+        }
+        next(err);
+    }
+}
+
+const MAX_COPIES_PER_ITEM = 20;
+
+const bulkSchema = Joi.object({
+        profileId: Joi.number().integer().positive().required(),
+        items: Joi.array().min(1).max(50).required().items(Joi.object({
+                foodName: Joi.string().min(2).max(100).required(),
+                expirationDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
+                ripenessLevel: Joi.string().min(1).max(30).required(),
+                quantity: Joi.number().integer().min(1).max(MAX_COPIES_PER_ITEM).default(1),
+        })),
+});
+
+const createBulkItems = async (req, res, next) => {
+    try {
+        const {error, value} = bulkSchema.validate(req.body);
+        const accountId = req.user.id;
+
+        if (error) {
+            return res.status(400).json({message: error.details[0].message});
+        }
+
+        const profile = await findProfileById(value.profileId);
+
+        if (!profile || profile.account_id !== accountId) {
+            return res.status(403).json({message: "That profile doesn't belong to this account"});
+        }
+
+        // There's no quantity column, so "3 apples" becomes three item rows.
+        const rows = value.items.flatMap((item) =>
+            Array.from({length: item.quantity}, () => ({
+                food_name: item.foodName,
+                expiration_date: item.expirationDate,
+                ripeness_level: item.ripenessLevel,
+            }))
+        );
+
+        const items = await createItemsBulk(accountId, value.profileId, rows);
+
+        return res.status(201).json({
+            message: `Added ${items.length} item${items.length === 1 ? "" : "s"}!`,
+            items
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
+    scanItems,
+    createBulkItems,
     getAllAccountItems,
     createSingleItem,
     getSingleItem,

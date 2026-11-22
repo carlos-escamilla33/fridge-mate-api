@@ -19,7 +19,7 @@ model, structured output and error-handling details. Don't write SDK calls from 
   parser, e.g. `express.json({ limit: "10mb" })`, mounted before the handler.
 - Validate with Joi: image required, mediaType in the allowed list.
 - Claude call:
-  - SDK: `@anthropic-ai/sdk` (add it to dependencies). Key comes from `ANTHROPIC_API_KEY` in `.env`.
+  - SDK: `@anthropic-ai/sdk` (add it to dependencies). Key comes from `CLAUDE_API_KEY` in `.env`.
   - Model: `claude-opus-5-5`, effort `low` (simple recognition task; keeps it fast and cheap). Include the server-side refusal fallback the skill recommends for this model.
   - Use structured outputs (JSON schema) so the response is always parseable. Schema:
     ```

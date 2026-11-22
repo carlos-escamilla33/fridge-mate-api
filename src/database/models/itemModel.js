@@ -176,8 +176,39 @@ const deleteExpiredItems = async (account_id) => {
     }
 }
 
+// Inserts all items in one transaction: either every item is saved or none are.
+const createItemsBulk = async (account_id, profile_id, items) => {
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+        const created = [];
+
+        for (const {food_name, expiration_date, ripeness_level} of items) {
+            const {rows: [item]} = await client.query(
+                `
+                INSERT INTO item(account_id, profile_id, food_name, expiration_date, ripeness_level)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING *;
+                `,
+                [account_id, profile_id, food_name, expiration_date, ripeness_level]
+            );
+            created.push(item);
+        }
+
+        await client.query("COMMIT");
+        return created;
+    } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
     createItem,
+    createItemsBulk,
     findItemById,
     findItemsByAccountId,
     findItemsByProfileId,

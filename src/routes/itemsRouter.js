@@ -1,13 +1,16 @@
 const express = require("express");
 const itemsRouter = express.Router();
 const {authenticateToken} = require("../middleware/authToken");
-const {getAllAccountItems, createSingleItem, getSingleItem, updateSingleItem, deleteSingleItem, getSoonExpiringItems, getExpiredItems} = require("../controllers/itemsController");
+const {scanItems, createBulkItems, getAllAccountItems, createSingleItem, getSingleItem, updateSingleItem, deleteSingleItem, getSoonExpiringItems, getExpiredItems} = require("../controllers/itemsController");
 
 itemsRouter.use((req, res, next) => {
     console.log("A request has been made to /items");
     next();
 });
 
+// Must come before "/:id" so they aren't matched as item ids.
+itemsRouter.post("/scan", authenticateToken, scanItems);
+itemsRouter.post("/bulk", authenticateToken, createBulkItems);
 itemsRouter.get("/", authenticateToken, getAllAccountItems);
 itemsRouter.post("/", authenticateToken, createSingleItem);
 itemsRouter.get("/:id", authenticateToken, getSingleItem);
