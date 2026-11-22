@@ -1,12 +1,16 @@
 const {pool} = require("../config/database");
 
+// Every item column except image_data, which can be large. Photos are served by GET /api/items/:id/image.
+const ITEM_COLUMNS = `item_id, account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level,
+    created_at, updated_at, (image_data IS NOT NULL) AS has_image`;
+
 const createItem = async (account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level) => {
     try {
         const {rows: [item]} = await pool.query(
             `
             INSERT INTO item(account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level)
             VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *;
+            RETURNING ${ITEM_COLUMNS};
             `,
             [account_id, profile_id, recipe_id, food_name, expiration_date, ripeness_level]
         );
@@ -21,7 +25,7 @@ const findItemById = async (account_id, item_id) => {
     try {
         const {rows: [item]} = await pool.query(
             `
-            SELECT * FROM item
+            SELECT ${ITEM_COLUMNS} FROM item
             WHERE account_id=$1
             AND item_id=$2;
             `,
@@ -38,7 +42,7 @@ const findItemsByAccountId = async (account_id) => {
     try {
         const {rows} = await pool.query(
             `
-            SELECT * FROM item
+            SELECT ${ITEM_COLUMNS} FROM item
             WHERE account_id=$1
             ORDER BY expiration_date ASC;
             `,
@@ -55,7 +59,7 @@ const findItemsByProfileId = async (id) => {
     try {
         const {rows} = await pool.query(
             `
-            SELECT * FROM item
+            SELECT ${ITEM_COLUMNS} FROM item
             WHERE profile_id=$1;
             `,
             [id]
@@ -71,7 +75,7 @@ const findSoonExpiringItems = async (account_id, days) => {
     try {
         const {rows} = await pool.query(
             `
-            SELECT * FROM item
+            SELECT ${ITEM_COLUMNS} FROM item
             WHERE account_id=$1
             AND expiration_date BETWEEN CURRENT_DATE AND CURRENT_DATE + ($2 || ' days')::INTERVAL
             AND expiration_date >= CURRENT_DATE;
@@ -89,7 +93,7 @@ const findExpiredItems = async (account_id) => {
     try {
         const {rows} = await pool.query(
             `
-            SELECT * FROM item
+            SELECT ${ITEM_COLUMNS} FROM item
             WHERE account_id=$1
             AND expiration_date < CURRENT_DATE
             ORDER BY expiration_date DESC;
@@ -112,7 +116,7 @@ const updateItem = async (account_id, profile_id, item_id, food_name, expiration
             WHERE account_id=$4
             AND item_id=$5
             AND profile_id=$6
-            RETURNING *;
+            RETURNING ${ITEM_COLUMNS};
             `,
             [food_name, expiration_date, ripeness_level, account_id, item_id, profile_id]
         );
@@ -130,7 +134,7 @@ const updateItemRipeness = async ({item_id, ripeness}) => {
             UPDATE item
             SET ripeness_level=$1
             WHERE item_id=$2
-            RETURNING *;
+            RETURNING ${ITEM_COLUMNS};
             `,
             [ripeness, item_id]
         );
@@ -148,7 +152,7 @@ const deleteItem = async (account_id, item_id) => {
             DELETE FROM item
             WHERE account_id=$1
             AND item_id=$2
-            RETURNING *;
+            RETURNING ${ITEM_COLUMNS};
             `,
             [account_id, item_id]
         );
@@ -166,7 +170,7 @@ const deleteExpiredItems = async (account_id) => {
             DELETE FROM item
             WHERE account_id=$1
             AND expiration_date < CURRENT_DATE
-            RETURNING *;
+            RETURNING ${ITEM_COLUMNS};
             `,
             [account_id]
         );
@@ -190,7 +194,7 @@ const createItemsBulk = async (account_id, profile_id, items) => {
                 `
                 INSERT INTO item(account_id, profile_id, food_name, expiration_date, ripeness_level)
                 VALUES ($1, $2, $3, $4, $5)
-                RETURNING *;
+                RETURNING ${ITEM_COLUMNS};
                 `,
                 [account_id, profile_id, food_name, expiration_date, ripeness_level]
             );
